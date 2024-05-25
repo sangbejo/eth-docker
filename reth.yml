@@ -28,16 +28,20 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - ARCHIVE_NODE=${ARCHIVE_NODE:-}
       - NETWORK=${NETWORK}
+      - STATIC_DIR=${ANCIENT_DIR}
       # Make this RUST_LOG=${LOG_LEVEL:-info},engine=trace when requiring deep debug
       - RUST_LOG=${LOG_LEVEL:-info}
       - RUST_LOG_STYLE=never
     volumes:
       - reth-el-data:/var/lib/reth
+      - ${ANCIENT_DIR:-.nada}:/var/lib/static
       - /etc/localtime:/etc/localtime:ro
       - jwtsecret:/var/lib/reth/ee-secret
     ports:
       - ${HOST_IP:-}:${EL_P2P_PORT:-30303}:${EL_P2P_PORT:-30303}/tcp
       - ${HOST_IP:-}:${EL_P2P_PORT:-30303}:${EL_P2P_PORT:-30303}/udp
+      - ${HOST_IP:-}:${ERIGON_P2P_PORT_2:-30304}:${ERIGON_P2P_PORT_2:-30303}/tcp
+      - ${HOST_IP:-}:${ERIGON_P2P_PORT_2:-30304}:${ERIGON_P2P_PORT_2:-30303}/udp
     networks:
       default:
         aliases:
@@ -56,6 +60,9 @@ services:
       - ${EL_P2P_PORT:-30303}
       - --discovery.port
       - ${EL_P2P_PORT:-30303}
+      - --enable-discv5-discovery
+      - --discovery.v5.port
+      - ${ERIGON_P2P_PORT_2:-30304}
       - --nat
       - publicip
       - --http
